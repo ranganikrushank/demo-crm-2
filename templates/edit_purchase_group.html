@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <div class="card shadow-sm p-4 mb-4">
+    <h2 class="text-warning mb-3">📝 Edit Purchase Entries - Order ID: {{ order_id }}</h2>
+
+    <form method="POST">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="po-table">
+          <thead class="table-light text-center">
+            <tr><th>Date</th><th>Description</th><th>Amount (₹)</th><th>Remove</th></tr>
+          </thead>
+          <tbody>
+            {% for p in purchases %}
+            <tr>
+              <td><input type="date" name="date[]" class="form-control" value="{{ p.date }}"></td>
+              <td><input type="text" name="description[]" class="form-control" value="{{ p.description }}"></td>
+              <td><input type="number" name="amount[]" class="form-control amount-field" step="0.01" value="{{ p.amount }}"></td>
+              <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm remove-row">✖</button></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <button type="button" class="btn btn-outline-secondary mb-3" id="add-row">➕ Add Row</button>
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold">Total: ₹<span id="total-amount">0.00</span></h5>
+        <button type="submit" class="btn btn-success">💾 Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JS same as before -->
+<script>
+  document.getElementById('add-row').addEventListener('click', function () {
+    const table = document.querySelector('#po-table tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td><input type="date" name="date[]" class="form-control"></td>
+      <td><input type="text" name="description[]" class="form-control"></td>
+      <td><input type="number" name="amount[]" class="form-control amount-field" step="0.01"></td>
+      <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm remove-row">✖</button></td>
+    `;
+    table.appendChild(newRow);
+    calculateTotal();
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('remove-row')) {
+      e.target.closest('tr').remove();
+      calculateTotal();
+    }
+  });
+
+  document.addEventListener('input', calculateTotal);
+
+  function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.amount-field').forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    document.getElementById('total-amount').textContent = total.toFixed(2);
+  }
+</script>
+{% endblock %}

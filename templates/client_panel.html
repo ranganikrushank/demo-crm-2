@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(to right top, #0f2027, #203a43, #2c5364);
+    font-family: 'Poppins', sans-serif;
+    color: #f1f1f1;
+  }
+
+  .glass-container {
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-container h3 {
+    color: #66fcf1;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: 500;
+    color: #c1d3df;
+  }
+
+  .form-control,
+  .form-select {
+    background-color: #1f2937;
+    color: #f1f1f1;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #66fcf1;
+    box-shadow: 0 0 0 0.15rem rgba(102, 252, 241, 0.25);
+  }
+
+  .btn-submit {
+    background-color: #66fcf1;
+    color: #0f172a;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    transition: 0.3s;
+  }
+
+  .btn-submit:hover {
+    background-color: #45e6d2;
+    color: #000;
+  }
+
+  .glass-table {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-top: 30px;
+  }
+
+  table th,
+  table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  table thead {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #66fcf1;
+  }
+
+  table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .top-actions a {
+    background-color: #66fcf1;
+    color: #0f172a;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+
+  .top-actions a:hover {
+    background-color: #45e6d2;
+  }
+</style>
+
+<div class="glass-container">
+  <div class="top-actions">
+    <h3>💼 Client Payment Entry</h3>
+    <a href="{{ url_for('admin_base_dashboard') }}">🧭 Go to Base Dashboard</a>
+  </div>
+
+  <!-- Payment Entry Form -->
+  <form method="POST" class="row g-3">
+    <div class="col-md-6">
+      <label>Order ID</label>
+      <select name="order_id" class="form-select" required>
+        {% for order in orders %}
+        <option value="{{ order.order_id }}">{{ order.order_id }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label>Amount</label>
+      <input type="number" name="amount" class="form-control" step="0.01" required>
+    </div>
+    <div class="col-md-3">
+      <label>Date</label>
+      <input type="date" name="date" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label>Payment Status</label>
+      <select name="status" class="form-select" required>
+        <option value="Pending">Pending</option>
+        <option value="Paid">Paid</option>
+      </select>
+    </div>
+    <div class="col-12 d-flex justify-content-end">
+      <button type="submit" class="btn-submit">💾 Submit Payment</button>
+    </div>
+  </form>
+
+  <!-- Payment Table -->
+  <div class="glass-table table-responsive mt-5">
+    <h4 class="text-info mb-3">📄 Previous Client Payments</h4>
+    <table class="table table-hover table-borderless align-middle">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.order_id }}</td>
+          <td>₹{{ p.amount }}</td>
+          <td>{{ p.date }}</td>
+          <td>
+            {% if p.status == 'Paid' %}
+              <span class="badge bg-success">✔ Paid</span>
+            {% elif p.status == 'Pending' %}
+              <span class="badge bg-warning text-dark">⏳ Pending</span>
+            {% else %}
+              <span class="badge bg-secondary">N/A</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-muted text-center">No payment records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

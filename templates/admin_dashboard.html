@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(to right, #111827, #1f2937);
+    color: #e0e0e0;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .dashboard-wrapper {
+    padding: 60px 20px;
+    max-width: 1400px;
+    margin: auto;
+  }
+
+  .neo-card {
+    background: #1e293b;
+    border-radius: 20px;
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, 0.3),
+      -8px -8px 20px rgba(255, 255, 255, 0.02);
+    padding: 45px 35px;
+    border: 1px solid #2d3748;
+  }
+
+  .dashboard-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 20px;
+  }
+
+  .dashboard-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #38bdf8;
+  }
+
+  .dashboard-header a {
+    background-color: #38bdf8;
+    color: #0f172a;
+    padding: 10px 20px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .dashboard-header a:hover {
+    background-color: #0ea5e9;
+    color: white;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+
+  .filter-row select,
+  .filter-row input {
+    background: #1f2937;
+    color: #f1f1f1;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 200px;
+  }
+
+  .filter-row button {
+    background-color: transparent;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+
+  .filter-row button:hover {
+    background: #38bdf8;
+    color: #0f172a;
+  }
+
+  table {
+    width: 100%;
+    color: #cbd5e1;
+    margin-top: 25px;
+  }
+
+  thead {
+    background-color: #0f172a;
+  }
+
+  thead th {
+    text-align: center;
+    padding: 14px;
+    font-weight: 600;
+    color: #38bdf8;
+    border-bottom: 1px solid #334155;
+  }
+
+  tbody td {
+    text-align: center;
+    padding: 12px;
+    border-bottom: 1px solid #334155;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-weight: 500;
+  }
+
+  .badge.bg-success {
+    background-color: #16a34a;
+    color: #d1fae5;
+  }
+
+  .badge.bg-warning {
+    background-color: #facc15;
+    color: #1e293b;
+  }
+
+  .badge.bg-secondary {
+    background-color: #64748b;
+    color: #f1f5f9;
+  }
+
+  .btn-view {
+    background-color: #0ea5e9;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: 0.3s ease;
+    border: none;
+  }
+
+  .btn-view:hover {
+    background-color: #0284c7;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .filter-row {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<div class="dashboard-wrapper">
+  <div class="neo-card">
+    <div class="dashboard-header">
+      <h2><i class="fas fa-chart-line me-2"></i>Admin Dashboard</h2>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('view_history_logs') }}">📜 View History Logs</a>
+        <a href="{{ url_for('admin_base_dashboard') }}" class="btn btn-primary" style="background-color:#22d3ee; color:#0f172a;">🧭 Go to Base Dashboard</a>
+
+      </div>
+    </div>
+
+
+    <div class="filter-row">
+      <input type="text" id="searchInput" placeholder="🔍 Search orders...">
+      <select id="statusFilter">
+        <option value="">🔁 All Status</option>
+        <option value="Completed">✅ Completed</option>
+        <option value="Pending">⌛ Pending</option>
+      </select>
+      <select id="paymentFilter">
+        <option value="">💳 All Payments</option>
+        <option value="Paid">✔ Paid</option>
+        <option value="Pending">🕐 Pending</option>
+        <option value="N/A">❔ N/A</option>
+      </select>
+      <button onclick="clearSearch()">✖ Reset</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Company</th>
+            <th>Requirement</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="dashboard-table">
+          {% for row in data %}
+          <tr>
+            <td class="fw-bold text-info">{{ row.order_id }}</td>
+            <td>{{ row.customer_name }}</td>
+            <td>{{ row.company_name }}</td>
+            <td>{{ row.requirement }}</td>
+            <td>
+              {% if row.status == "Completed" %}
+              <span class="badge bg-success">Completed</span>
+              {% else %}
+              <span class="badge bg-warning">Pending</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if row.payment_status == "Paid" %}
+              <span class="badge bg-success">Paid</span>
+              {% elif row.payment_status == "Pending" %}
+              <span class="badge bg-warning">Pending</span>
+              {% else %}
+              <span class="badge bg-secondary">N/A</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('view_order_details', order_id=row.order_id) }}" class="btn btn-view">🔍 View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER SCRIPT -->
+<script>
+  document.getElementById("searchInput").addEventListener("keyup", filterTable);
+  document.getElementById("statusFilter").addEventListener("change", filterTable);
+  document.getElementById("paymentFilter").addEventListener("change", filterTable);
+
+  function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("statusFilter").value = "";
+    document.getElementById("paymentFilter").value = "";
+    filterTable();
+  }
+
+  function filterTable() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value.toLowerCase();
+    const payment = document.getElementById("paymentFilter").value.toLowerCase();
+
+    const rows = document.querySelectorAll("#dashboard-table tr");
+
+    rows.forEach(row => {
+      const rowText = row.textContent.toLowerCase();
+      const rowStatus = row.querySelector("td:nth-child(5)")?.textContent.toLowerCase();
+      const rowPayment = row.querySelector("td:nth-child(6)")?.textContent.toLowerCase();
+
+      const matchesQuery = rowText.includes(query);
+      const matchesStatus = !status || rowStatus.includes(status);
+      const matchesPayment = !payment || rowPayment.includes(payment);
+
+      row.style.display = matchesQuery && matchesStatus && matchesPayment ? "" : "none";
+    });
+  }
+</script>
+
+{% endblock %}

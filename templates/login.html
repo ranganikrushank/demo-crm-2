@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block content %}
+<style>
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 75vh;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .login-card h2 {
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-control {
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    box-shadow: none !important;
+  }
+
+  .btn-primary {
+    width: 100%;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #0d6efd, #409fff);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #2986cc);
+  }
+
+  @media (max-width: 576px) {
+    .login-card {
+      padding: 30px 20px;
+    }
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <h2>🔐 Login to Your Account</h2>
+    <form method="POST">
+      <input type="text" name="username" class="form-control" placeholder="Username" required>
+      <input type="password" name="password" class="form-control" placeholder="Password" required>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

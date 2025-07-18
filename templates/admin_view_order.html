@@ -1,0 +1,223 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    font-family: 'Poppins', sans-serif;
+    color: #f0f8ff;
+  }
+
+  .glass-box {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-box h3, .glass-box h4 {
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .glass-box h3 span {
+    color: #00eaff;
+  }
+
+  .glass-box h4 {
+    color: #facc15;
+  }
+
+  .table thead {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #00eaff;
+  }
+
+  .table td, .table th {
+    vertical-align: middle;
+    text-align: center;
+    color: #e2e8f0;
+  }
+
+  .back-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .btn-glass {
+  background-color: #00eaff;
+  color: #0f172a;
+  border: 2px solid #fff;  /* <--- temporarily add border */
+  display: inline-block;
+}
+.back-buttons {
+  z-index: 2;
+  padding-bottom: 30px;
+}
+
+
+  .btn-glass:hover {
+    background-color: #06b6d4;
+    color: #fff;
+  }
+
+  .table-dark-text th,
+.table-dark-text td {
+  color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+</style>
+
+<div class="container">
+  <!-- Order Details -->
+  <div class="glass-box mb-4">
+    <h3>🧾 Order Details: <span>{{ order.order_id }}</span></h3>
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>👤 Customer:</strong> {{ order.customer_name }}</p>
+        <p><strong>🏢 Company:</strong> {{ order.company_name }}</p>
+        <p><strong>📧 Email:</strong> {{ order.email }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>📞 Phone:</strong> {{ order.phone }}</p>
+        <p><strong>🌍 Country:</strong> {{ order.country }}</p>
+        <p><strong>📌 Requirement:</strong> {{ order.requirement }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase Orders -->
+<div class="glass-box mb-4">
+  <h4>🛒 Purchase Orders</h4>
+  <table class="table table-bordered table-hover table-dark-text">
+    <thead>
+      <tr><th>Description</th><th>Amount (₹)</th></tr>
+    </thead>
+    <tbody>
+      {% for p in purchases %}
+      <tr><td>{{ p.description }}</td><td>{{ p.amount }}</td></tr>
+      {% else %}
+      <tr><td colspan="2" class="text-muted text-center">No purchases found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Financial Summary -->
+<div class="glass-box mb-4">
+  <h4>📊 Financial Summary</h4>
+  <table class="table table-bordered table-hover table-dark-text">
+    <thead>
+      <tr><th>Label</th><th>Amount (₹)</th></tr>
+    </thead>
+    <tbody>
+      {% for s in summaries %}
+      <tr><td>{{ s.label }}</td><td>{{ s.amount }}</td></tr>
+      {% else %}
+      <tr><td colspan="2" class="text-muted text-center">No financial summary available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Stylish Navigation Panel -->
+<div class="nav-glass-panel mt-4">
+  <div class="nav-buttons-container">
+    <a href="{{ url_for('admin_dashboard') }}" class="nav-button">
+      <i class="fas fa-arrow-left me-2"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin_base_dashboard') }}" class="nav-button">
+      <i class="fas fa-rocket me-2"></i> Base Dashboard
+    </a>
+  </div>
+</div>
+
+<style>
+  .nav-glass-panel {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  .nav-buttons-container {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #00eaff, #38bdf8);
+    color: #0f172a;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 5px 20px rgba(56, 189, 248, 0.4);
+    font-size: 1rem;
+  }
+
+  .nav-button:hover {
+    transform: translateY(-2px) scale(1.03);
+    background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    color: #ffffff;
+  }
+
+  .nav-button i {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 576px) {
+    .nav-buttons-container {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .nav-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+</div>
+
+<!-- GSAP Animations -->
+<script>
+  gsap.from(".glass-box", {
+    y: 30,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.2
+  });
+
+  gsap.from(".btn-glass", {
+    y: 20,
+    opacity: 0,
+    delay: 0.3,
+    duration: 0.4,
+    stagger: 0.1
+  });
+</script>
+
+{% endblock %}

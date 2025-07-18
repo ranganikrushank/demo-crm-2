@@ -1,0 +1,266 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .glass-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  h2 {
+    color: #38bdf8;
+    font-weight: 600;
+    margin-bottom: 25px;
+  }
+
+  .nav-tabs .nav-link {
+    background: transparent;
+    color: #a5f3fc;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    border-radius: 0;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-link:hover {
+    border-bottom: 2px solid #38bdf8;
+    color: #38bdf8;
+  }
+
+  .form-select,
+  .form-control {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+    border-radius: 12px;
+  }
+
+  .form-control::placeholder {
+    color: #94a3b8;
+  }
+
+  .btn-glow {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn-glow:hover {
+    background: linear-gradient(to right, #16a34a, #15803d);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(22, 163, 74, 0.7);
+  }
+
+  table {
+    background-color: transparent;
+    color: #f8fafc;
+  }
+
+  thead th {
+    background: #1e293b;
+    color: #7dd3fc;
+    text-align: center;
+    padding: 12px;
+  }
+
+  tbody td {
+    text-align: center;
+    border-bottom: 1px solid #334155;
+  }
+
+  tbody tr:hover {
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  .btn-danger,
+  .btn-outline-secondary {
+    border-radius: 8px;
+  }
+
+  strong {
+    color: #7ee787;
+  }
+
+  tfoot td,
+tfoot strong {
+  color: #000000 !important;
+}
+
+</style>
+
+<div class="glass-container">
+  <h2>🧾 Employee 2 Panel</h2>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs" id="tabMenu" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="summary-tab-btn" data-bs-toggle="tab" data-bs-target="#summary-tab" type="button" role="tab">💰 Financial Summary</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="expenses-tab-btn" data-bs-toggle="tab" data-bs-target="#expenses-tab" type="button" role="tab">💸 Expenses</button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content pt-4">
+
+    <!-- Financial Summary Tab -->
+    <div class="tab-pane fade show active" id="summary-tab" role="tabpanel">
+      <form method="POST" action="{{ url_for('save_summary') }}">
+        <label class="fw-bold mb-2">Select Order ID:</label>
+        <select name="order_id" class="form-select mb-3" required>
+          {% for order in orders %}
+            <option value="{{ order.order_id }}">{{ order.order_id }}</option>
+          {% endfor %}
+        </select>
+
+        {% set fields = ['GST', 'Rootep', 'dgft', 'Extra Fee'] %}
+        <table class="table table-borderless">
+          <thead>
+            <tr><th>Label</th><th>Amount (₹)</th></tr>
+          </thead>
+          <tbody>
+            {% for field in fields %}
+            <tr>
+              <td>{{ field }}</td>
+              <td>
+                <input type="number" name="amounts[]" class="form-control summary-field" step="0.01" placeholder="₹0.00">
+                <input type="hidden" name="labels[]" value="{{ field }}">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td><strong>Total</strong></td>
+              <td><strong>₹<span id="summary-total">0.00</span></strong></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button type="submit" class="btn-glow mt-2">✅ Save Summary</button>
+      </form>
+    </div>
+
+    <!-- Expenses Tab -->
+    <div class="tab-pane fade" id="expenses-tab" role="tabpanel">
+      <form method="POST" action="{{ url_for('save_expenses') }}">
+        <h5 class="fw-bold mb-3">Enter General Business Expenses:</h5>
+
+        <table class="table table-borderless" id="expenses-table">
+          <thead>
+            <tr><th>Description</th><th>Amount</th><th>Date</th><th>Remove</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" name="description[]" class="form-control" required></td>
+              <td><input type="number" name="amount[]" class="form-control expense-field" step="0.01" required></td>
+              <td><input type="date" name="date[]" class="form-control" required></td>
+              <td><button type="button" class="btn btn-danger btn-sm remove-expense">✖</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <button type="button" class="btn btn-outline-secondary" id="add-expense-row">➕ Add Row</button><br><br>
+        <strong>Total: ₹<span id="expenses-total">0.00</span></strong><br><br>
+        <button type="submit" class="btn-glow">💾 Save Expenses</button>
+      </form>
+
+      <hr class="my-4">
+      <h5>📅 Filter Expenses by Date</h5>
+      <form method="GET" action="{{ url_for('employee2_panel') }}" class="row g-3">
+        <div class="col-md-4"><input type="date" name="from_date" class="form-control" required></div>
+        <div class="col-md-4"><input type="date" name="to_date" class="form-control" required></div>
+        <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">🔍 Filter</button></div>
+      </form>
+
+      <div class="table-responsive mt-4">
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Description</th><th>Amount</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            {% for exp in expenses %}
+            <tr>
+              <td>{{ exp.description }}</td>
+              <td>{{ exp.amount }}</td>
+              <td>{{ exp.date }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+function updateSummaryTotal() {
+  let total = 0;
+  document.querySelectorAll('.summary-field').forEach(input => {
+    total += parseFloat(input.value) || 0;
+  });
+  document.getElementById('summary-total').innerText = total.toFixed(2);
+}
+
+function updateExpensesTotal() {
+  let total = 0;
+  document.querySelectorAll('.expense-field').forEach(input => {
+    total += parseFloat(input.value) || 0;
+  });
+  document.getElementById('expenses-total').innerText = total.toFixed(2);
+}
+
+document.addEventListener('input', () => {
+  updateSummaryTotal();
+  updateExpensesTotal();
+});
+
+document.getElementById('add-expense-row').addEventListener('click', () => {
+  const table = document.querySelector('#expenses-table tbody');
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><input type="text" name="description[]" class="form-control" required></td>
+    <td><input type="number" name="amount[]" class="form-control expense-field" step="0.01" required></td>
+    <td><input type="date" name="date[]" class="form-control" required></td>
+    <td><button type="button" class="btn btn-danger btn-sm remove-expense">✖</button></td>
+  `;
+  table.appendChild(row);
+  updateExpensesTotal();
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('remove-expense')) {
+    e.target.closest('tr').remove();
+    updateExpensesTotal();
+  }
+});
+
+gsap.from(".glass-container", { opacity: 0, y: 40, duration: 0.7 });
+gsap.from(".nav-tabs .nav-link", { opacity: 0, y: -10, duration: 0.4, stagger: 0.1 });
+</script>
+
+{% endblock %}
