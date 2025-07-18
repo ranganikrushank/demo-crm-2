@@ -2,14 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime, timedelta
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = '06b7d11c58cad2c88e2121c1c5a48ec70274b53a830029efb4f92ace47c81ecd'
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 # Database Config
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crm.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_2wmrgLI0iYXP@ep-winter-bread-a1z0y9wq-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -447,4 +448,5 @@ def admin_base_dashboard():
 # -------------------- MAIN ------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
